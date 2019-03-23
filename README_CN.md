@@ -1,7 +1,7 @@
 # @Transactional
 
 [![Build Status: Linux](https://travis-ci.org/muyu66/transactional.svg?branch=master)](https://travis-ci.org/muyu66/transactional) 
-[![Coverage Status](https://coveralls.io/repos/github/muyu66/transactional/badge.svg)](https://coveralls.io/github/muyu66/transactional)
+[![Coverage Status](https://coveralls.io/repos/github/muyu66/transactional/badge.svg?branch=master)](https://coveralls.io/github/muyu66/transactional?branch=master)
 
 **@Transactional** 是一款专为解决 nodejs 代码中 **事务传递** 只能依赖于 **函数间的参数传递** 而产生的包。
 Now, 我们使用装饰器(注解)来传递。
