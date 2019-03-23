@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "declaration": true,
+        "noLib": false,
+        "allowSyntheticDefaultImports": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "target": "es6",
+        "outDir": "./dist",
+        "strictNullChecks": true,
+        "pretty": true,
+        "sourceMap": true
+    },
+    "include": [
+        "src/**/*",
+        "test/**/*",
+        "index.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
