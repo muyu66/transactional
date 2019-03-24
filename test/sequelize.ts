@@ -1,8 +1,10 @@
-import { Sequelize, STRING, CreateOptions } from 'sequelize';
+import { Sequelize, STRING, CreateOptions, FindOptions } from 'sequelize';
+import { getTransaction } from '../src/core/session.core';
 
-export const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: ':memory:',
+export const sequelize = new Sequelize('test', 'root', '19931124', {
+    dialect: 'mysql',
+    host: '127.0.0.1',
+    port: 3306,
 });
 export const User = sequelize.define('user', {
     name: {
@@ -16,12 +18,18 @@ export const User = sequelize.define('user', {
 
 export class UserDao {
 
-    public async create(dto: any) {
-        return User.create(dto);
+    public async create(dto: any, option?: CreateOptions) {
+        if (!option) option = { transaction: getTransaction() };
+        option.transaction = getTransaction();
+
+        return User.create(dto, option);
     }
 
-    public async findAll() {
-        return User.findAll();
+    public async findAll<T>(option?: FindOptions<T>) {
+        if (!option) option = { transaction: getTransaction() };
+        option.transaction = getTransaction();
+
+        return User.findAll(option);
     }
 
 }

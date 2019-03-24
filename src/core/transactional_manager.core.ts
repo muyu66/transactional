@@ -1,7 +1,7 @@
-import { session } from './session.core';
 import { transactionalPlatform } from './transactional_platform.core';
 import { ITransactionOption } from '../interface/transaction.interface';
 import { PROPAGATION } from '../enum/enum';
+import { getTransaction, setTransaction } from './session.core';
 
 export class TransactionManager {
 
@@ -38,10 +38,10 @@ export class TransactionManager {
         ctx: any,
         args: any[],
     ) {
-        if (session.active) throw Error('Currently running in NEVER mode, active transactions are not allowed');
-        const promiseObj = Reflect.apply(target, ctx, args);
-        this.validFunction(promiseObj);
-        return promiseObj;
+        // if (session.active) throw Error('Currently running in NEVER mode, active transactions are not allowed');
+        // const promiseObj = Reflect.apply(target, ctx, args);
+        // this.validFunction(promiseObj);
+        // return promiseObj;
     }
 
     protected async supports(
@@ -49,27 +49,27 @@ export class TransactionManager {
         ctx: any,
         args: any[],
     ) {
-        return session.runPromise(async () => {
-            const transaction = session.get('transaction');
-            const newTransaction = !transaction;
-            try {
-                const promiseObj = Reflect.apply(target, ctx, args);
-                this.validFunction(promiseObj);
-                const value = await promiseObj;
-                if (newTransaction) {
-                    await transactionalPlatform.commitTransaction(transaction);
-                    session.set('transaction', null);
-                }
-                return value;
-            } catch (e) {
-                console.log(e);
-                if (newTransaction) {
-                    await transactionalPlatform.rollbackTransaction(transaction);
-                    session.set('transaction', null);
-                }
-                throw e;
-            }
-        });
+        // return session.runPromise(async () => {
+        //     const transaction = session.get('transaction');
+        //     const newTransaction = !transaction;
+        //     try {
+        //         const promiseObj = Reflect.apply(target, ctx, args);
+        //         this.validFunction(promiseObj);
+        //         const value = await promiseObj;
+        //         if (newTransaction) {
+        //             await transactionalPlatform.commitTransaction(transaction);
+        //             session.set('transaction', null);
+        //         }
+        //         return value;
+        //     } catch (e) {
+        //         console.log(e);
+        //         if (newTransaction) {
+        //             await transactionalPlatform.rollbackTransaction(transaction);
+        //             session.set('transaction', null);
+        //         }
+        //         throw e;
+        //     }
+        // });
     }
 
     protected async required(
@@ -77,31 +77,27 @@ export class TransactionManager {
         ctx: any,
         args: any[],
     ) {
-        return session.runPromise(async () => {
-            let transaction = session.get('transaction');
-            const newTransaction = !transaction;
-            if (!transaction) {
-                transaction = await transactionalPlatform.createTransaction();
-                session.set('transaction', transaction);
+        let transaction = getTransaction();
+        const newTransaction = !transaction;
+        if (!transaction) {
+            transaction = await transactionalPlatform.createTransaction();
+            setTransaction(transaction);
+        }
+        try {
+            const promiseObj = Reflect.apply(target, ctx, args);
+            this.validFunction(promiseObj);
+            const value = await promiseObj;
+            if (newTransaction) {
+                await transactionalPlatform.commitTransaction(transaction);
+                setTransaction(undefined);
             }
-            try {
-                const promiseObj = Reflect.apply(target, ctx, args);
-                this.validFunction(promiseObj);
-                const value = await promiseObj;
-                if (newTransaction) {
-                    await transactionalPlatform.commitTransaction(transaction);
-                    session.set('transaction', null);
-                }
-                return value;
-            } catch (e) {
-                console.log(e);
-                if (newTransaction) {
-                    await transactionalPlatform.rollbackTransaction(transaction);
-                    session.set('transaction', null);
-                }
-                throw e;
-            }
-        });
+            return value;
+        } catch (e) {
+            console.log(e);
+            await transactionalPlatform.rollbackTransaction(transaction);
+            setTransaction(undefined);
+            throw e;
+        }
     }
 
     protected async requiresNew(
@@ -109,30 +105,30 @@ export class TransactionManager {
         ctx: any,
         args: any[],
     ) {
-        return session.runPromise(async () => {
-            const oldTransaction = session.get('transaction');
+        // return session.runPromise(async () => {
+        //     const oldTransaction = session.get('transaction');
 
-            const createdTansaction = await transactionalPlatform.createTransaction();
-            session.set('transaction', createdTansaction);
+        //     const createdTansaction = await transactionalPlatform.createTransaction();
+        //     session.set('transaction', createdTansaction);
 
-            try {
-                const promiseObj = Reflect.apply(target, ctx, args);
-                this.validFunction(promiseObj);
-                const value = await promiseObj;
-                if (!!oldTransaction) {
-                    await transactionalPlatform.commitTransaction(createdTansaction);
-                    session.set('transaction', oldTransaction);
-                }
-                return value;
-            } catch (e) {
-                console.log(e);
-                if (!!oldTransaction) {
-                    await transactionalPlatform.rollbackTransaction(createdTansaction);
-                    session.set('transaction', oldTransaction);
-                }
-                throw e;
-            }
-        });
+        //     try {
+        //         const promiseObj = Reflect.apply(target, ctx, args);
+        //         this.validFunction(promiseObj);
+        //         const value = await promiseObj;
+        //         if (!!oldTransaction) {
+        //             await transactionalPlatform.commitTransaction(createdTansaction);
+        //             session.set('transaction', oldTransaction);
+        //         }
+        //         return value;
+        //     } catch (e) {
+        //         console.log(e);
+        //         if (!!oldTransaction) {
+        //             await transactionalPlatform.rollbackTransaction(createdTansaction);
+        //             session.set('transaction', oldTransaction);
+        //         }
+        //         throw e;
+        //     }
+        // });
     }
 
 }
