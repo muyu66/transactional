@@ -2,6 +2,9 @@
 
 [![Build Status: Linux](https://travis-ci.org/muyu66/transactional.svg?branch=master)](https://travis-ci.org/muyu66/transactional)
 [![Coverage Status](https://coveralls.io/repos/github/muyu66/transactional/badge.svg?branch=master)](https://coveralls.io/github/muyu66/transactional?branch=master)
+[![TypeScript](https://badges.frapsoft.com/typescript/code/typescript.svg?v=101)](https://github.com/ellerbrock/typescript-badges/)
+[![Chat](https://badges.gitter.im/stockmarketjsserver.svg)](https://gitter.im/zhouyu_66/TRANSACTIONAL)
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
 
 Translations: [简体中文](https://github.com/muyu66/transactional/blob/master/README_CN.md)
 
