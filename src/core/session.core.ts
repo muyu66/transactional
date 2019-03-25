@@ -23,3 +23,7 @@ export const getSession = (sessionName: string) => {
 export const setSession = (value: any, sessionName: string) => {
     return session.set(sessionName, value);
 };
+
+export const getSessionManager = (): any => {
+    return session;
+};

@@ -24,62 +24,66 @@ test.beforeEach(async t => {
     };
 });
 
-// test(`partRequired1`, async t => {
-//     try {
-//         await userService.partRequired1('Trump');
-//     } catch{ }
-//     const users = await userService.findAll();
-
-//     const expection = 2;
-//     const result = users.length;
-//     t.is(expection, result);
-// });
-
-// test(`partRequired2`, async t => {
-//     try {
-//         await userService.partRequired2('Trump');
-//     } catch{ }
-//     const users = await userService.findAll();
-
-//     const expection = 1;
-//     const result = users.length;
-//     t.is(expection, result);
-// });
-
-test(`required1`, async t => {
+test(`partRequiresNew1`, async t => {
     await sessionStart(async () => {
         try {
-            await userService.required1('Trump');
+            await userService.partRequiresNew1('Trump');
         } catch{ }
         const users = await userService.findAll();
 
-        const expection = 0;
+        const expection = 2;
         const result = users.length;
         t.is(expection, result);
     });
 });
 
-test(`required2`, async t => {
+test(`partRequiresNew2`, async t => {
     await sessionStart(async () => {
         try {
-            await userService.required2('Trump');
+            await userService.partRequiresNew2('Trump');
         } catch{ }
         const users = await userService.findAll();
 
-        const expection = 0;
+        const expection = 1;
         const result = users.length;
         t.is(expection, result);
     });
 });
 
-test(`required3`, async t => {
+test(`requiresNew1`, async t => {
     await sessionStart(async () => {
         try {
-            await userService.required3('Tim Apple');
+            await userService.requiresNew1('Trump');
         } catch{ }
         const users = await userService.findAll();
 
-        const expection = 0;
+        const expection = 2;
+        const result = users.length;
+        t.is(expection, result);
+    });
+});
+
+test(`requiresNew2`, async t => {
+    await sessionStart(async () => {
+        try {
+            await userService.requiresNew2('Trump');
+        } catch{ }
+        const users = await userService.findAll();
+
+        const expection = 1;
+        const result = users.length;
+        t.is(expection, result);
+    });
+});
+
+test(`requiresNew3`, async t => {
+    await sessionStart(async () => {
+        try {
+            await userService.requiresNew3('Tim Apple');
+        } catch{ }
+        const users = await userService.findAll();
+
+        const expection = 2;
         const result = users.length;
         t.is(expection, result);
     });

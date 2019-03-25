@@ -1,7 +1,7 @@
 import { transactionalPlatform } from './transactional_platform.core';
 import { ITransactionOption } from '../interface/transaction.interface';
 import { PROPAGATION } from '../enum/enum';
-import { getTransaction, setTransaction } from './session.core';
+import { getTransaction, setTransaction, setSession, getSession } from './session.core';
 
 export class TransactionManager {
 
@@ -25,7 +25,6 @@ export class TransactionManager {
                 console.debug('Warning: PROPAGATION.NEVER has not been tested');
                 return this.never(target, ctx, args);
             case PROPAGATION.REQUIRES_NEW:
-                console.debug('Warning: PROPAGATION.REQUIRES_NEW has not been tested');
                 return this.requiresNew(target, ctx, args);
             case PROPAGATION.NOT_SUPPORTED:
             default:
@@ -88,8 +87,11 @@ export class TransactionManager {
             this.validFunction(promiseObj);
             const value = await promiseObj;
             if (newTransaction) {
-                await transactionalPlatform.commitTransaction(transaction);
-                setTransaction(undefined);
+                transaction = getTransaction();
+                if (transaction) {
+                    await transactionalPlatform.commitTransaction(transaction);
+                    setTransaction(undefined);
+                }
             }
             return value;
         } catch (e) {
@@ -105,30 +107,45 @@ export class TransactionManager {
         ctx: any,
         args: any[],
     ) {
-        // return session.runPromise(async () => {
-        //     const oldTransaction = session.get('transaction');
+        const transactionQueue: any[] = getSession('transactionQueue') || [];
+        const transaction = getTransaction();
+        if (transaction) {
+            transactionQueue.push(transaction);
+            setTransaction(undefined);
+        }
+        const newTransaction = await transactionalPlatform.createTransaction();
+        setTransaction(newTransaction);
+        transactionQueue.push(newTransaction);
+        setSession(transactionQueue, 'transactionQueue');
 
-        //     const createdTansaction = await transactionalPlatform.createTransaction();
-        //     session.set('transaction', createdTansaction);
+        try {
+            const promiseObj = Reflect.apply(target, ctx, args);
+            this.validFunction(promiseObj);
+            const value = await promiseObj;
 
-        //     try {
-        //         const promiseObj = Reflect.apply(target, ctx, args);
-        //         this.validFunction(promiseObj);
-        //         const value = await promiseObj;
-        //         if (!!oldTransaction) {
-        //             await transactionalPlatform.commitTransaction(createdTansaction);
-        //             session.set('transaction', oldTransaction);
-        //         }
-        //         return value;
-        //     } catch (e) {
-        //         console.log(e);
-        //         if (!!oldTransaction) {
-        //             await transactionalPlatform.rollbackTransaction(createdTansaction);
-        //             session.set('transaction', oldTransaction);
-        //         }
-        //         throw e;
-        //     }
-        // });
+            const transactionQueue2: any[] = getSession('transactionQueue') || [];
+            const latestTransaction = transactionQueue2.pop();
+            setTransaction(latestTransaction);
+            setSession(transactionQueue2, 'transactionQueue');
+
+            if (latestTransaction) {
+                await transactionalPlatform.commitTransaction(latestTransaction);
+                setTransaction(undefined);
+            }
+            return value;
+        } catch (e) {
+            console.log(e);
+            const transactionQueue2: any[] = getSession('transactionQueue') || [];
+            const latestTransaction = transactionQueue2.pop();
+            setTransaction(latestTransaction);
+            setSession(transactionQueue2, 'transactionQueue');
+
+            if (latestTransaction) {
+                await transactionalPlatform.rollbackTransaction(latestTransaction);
+                setTransaction(undefined);
+            }
+            throw e;
+        }
     }
 
 }

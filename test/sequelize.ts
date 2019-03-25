@@ -1,5 +1,6 @@
 import { Sequelize, STRING, CreateOptions, FindOptions } from 'sequelize';
-import { getTransaction } from '../src/core/session.core';
+import { getTransaction, getSessionManager } from '../src/core/session.core';
+Sequelize.useCLS(getSessionManager());
 
 export const sequelize = new Sequelize('test', 'root', '19931124', {
     dialect: 'mysql',
@@ -19,15 +20,15 @@ export const User = sequelize.define('user', {
 export class UserDao {
 
     public async create(dto: any, option?: CreateOptions) {
-        if (!option) option = { transaction: getTransaction() };
-        option.transaction = getTransaction();
+        // if (!option) option = { transaction: getTransaction() };
+        // option.transaction = getTransaction();
 
         return User.create(dto, option);
     }
 
     public async findAll<T>(option?: FindOptions<T>) {
-        if (!option) option = { transaction: getTransaction() };
-        option.transaction = getTransaction();
+        // if (!option) option = { transaction: getTransaction() };
+        // option.transaction = getTransaction();
 
         return User.findAll(option);
     }
