@@ -19,7 +19,6 @@ export class TransactionManager {
             case PROPAGATION.REQUIRED:
                 return this.required(target, ctx, args);
             case PROPAGATION.SUPPORTS:
-                console.debug('Warning: PROPAGATION.SUPPORTS has not been tested');
                 return this.supports(target, ctx, args);
             case PROPAGATION.NEVER:
                 console.debug('Warning: PROPAGATION.NEVER has not been tested');
@@ -48,27 +47,26 @@ export class TransactionManager {
         ctx: any,
         args: any[],
     ) {
-        // return session.runPromise(async () => {
-        //     const transaction = session.get('transaction');
-        //     const newTransaction = !transaction;
-        //     try {
-        //         const promiseObj = Reflect.apply(target, ctx, args);
-        //         this.validFunction(promiseObj);
-        //         const value = await promiseObj;
-        //         if (newTransaction) {
-        //             await transactionalPlatform.commitTransaction(transaction);
-        //             session.set('transaction', null);
-        //         }
-        //         return value;
-        //     } catch (e) {
-        //         console.log(e);
-        //         if (newTransaction) {
-        //             await transactionalPlatform.rollbackTransaction(transaction);
-        //             session.set('transaction', null);
-        //         }
-        //         throw e;
-        //     }
-        // });
+        let transaction = getTransaction();
+        const newTransaction = !transaction;
+        try {
+            const promiseObj = Reflect.apply(target, ctx, args);
+            this.validFunction(promiseObj);
+            const value = await promiseObj;
+            if (newTransaction) {
+                transaction = getTransaction();
+                if (transaction) {
+                    await transactionalPlatform.commitTransaction(transaction);
+                    setTransaction(undefined);
+                }
+            }
+            return value;
+        } catch (e) {
+            console.log(e);
+            await transactionalPlatform.rollbackTransaction(transaction);
+            setTransaction(undefined);
+            throw e;
+        }
     }
 
     protected async required(

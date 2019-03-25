@@ -1,6 +1,4 @@
 import { Sequelize, STRING, CreateOptions, FindOptions } from 'sequelize';
-import { getTransaction, getSessionManager } from '../src/core/session.core';
-Sequelize.useCLS(getSessionManager());
 
 export const sequelize = new Sequelize('test', 'root', '19931124', {
     dialect: 'mysql',

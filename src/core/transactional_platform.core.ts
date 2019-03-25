@@ -1,4 +1,6 @@
 import { IType } from '../interface/type.interface';
+import Sequelize from 'sequelize';
+import { getSessionManager } from './session.core';
 
 class TransactionalPlatform {
 
@@ -31,6 +33,14 @@ class TransactionalPlatform {
     get rollbackTransaction() {
         if (!this._rollbackTransaction) throw Error('Not yet injected rollbackTransaction method');
         return this._rollbackTransaction;
+    }
+
+    public openHardcoreMode() {
+
+    }
+
+    public openCompatibleMode() {
+
     }
 
 }

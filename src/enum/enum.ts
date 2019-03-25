@@ -16,6 +16,7 @@ export enum PROPAGATION {
     NEVER = 'NEVER',
     // Always execute non-transactionally and suspend any existing transactions
     NOT_SUPPORTED = 'NOT_SUPPORTED',
+    NEST = 'NEST',
 }
 
 export enum ISOLATION {

@@ -110,4 +110,49 @@ export class UserService {
         } catch{ }
     }
 
+    public async partSupports1(name: string) {
+        await this.createRequired(name);
+        await this.createSupports(name);
+        throw Error();
+    }
+
+    public async partSupports2(name: string) {
+        await this.createSupports(name);
+        await this.createSupportsError(name);
+    }
+
+    @Transactional({ propagation: PROPAGATION.SUPPORTS })
+    public async createSupports(name: string, option?: CreateOptions) {
+        return this.userDao.create({ name }, option);
+    }
+
+    @Transactional({ propagation: PROPAGATION.SUPPORTS })
+    public async createSupportsError(name: string, option?: CreateOptions) {
+        return this.userDao.create({ name: name + '_222222222222222222222222222222222222222' }, option);
+    }
+
+    @Transactional({ propagation: PROPAGATION.REQUIRED })
+    public async supports1(name: string) {
+        await this.createRequired(name);
+        await this.createSupports(name);
+        await this.createSupports(name);
+        throw Error();
+    }
+
+    @Transactional({ propagation: PROPAGATION.SUPPORTS })
+    public async supports2(name: string) {
+        await this.createRequired(name);
+        await this.createSupports(name);
+        await this.createSupportsError(name);
+    }
+
+    @Transactional({ propagation: PROPAGATION.REQUIRED })
+    public async supports3(name: string) {
+        await this.createRequired(name);
+        await this.createSupports(name);
+        try {
+            await this.createSupportsError(name);
+        } catch{ }
+    }
+
 }
